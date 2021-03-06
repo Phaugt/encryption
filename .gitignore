@@ -112,3 +112,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+test.py
+.gitignore
+.DS_Store

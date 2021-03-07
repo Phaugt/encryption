@@ -1,15 +1,13 @@
-from cryptography import fernet
 from cryptography.fernet import Fernet
 from PyQt5 import uic
 from PyQt5.QtWidgets import (QApplication, qApp, QPushButton, QLabel, QVBoxLayout, QHBoxLayout, QFileDialog, QMainWindow,
                             QMessageBox, QStatusBar, QWidget, QMenuBar, QStatusBar, QAction, QRadioButton)
-from PyQt5.QtCore import QFile , Qt
+from PyQt5.QtCore import QFile, QObject , Qt
 from PyQt5.QtGui import QIcon
 import sys, os
 from easysettings import EasySettings
+from pathlib import Path
 from os.path import expanduser
-
-import easysettings
 
 
 def resource_path(relative_path):
@@ -31,6 +29,9 @@ class GUI(QMainWindow):
         UIFile.open(QFile.ReadOnly)
         uic.loadUi(UIFile, self)
         UIFile.close()
+        
+        self.w = Worker()
+        self.w.write_key()
 
         self.setAcceptDrops(True)
 
@@ -41,8 +42,8 @@ class GUI(QMainWindow):
                 border: 4px dashed #aaa;
             }
             ''')
-        self.btnEncrypt.clicked.connect(self.encryptFile)
-
+        self.btnEncrypt.clicked.connect(self.encrypt)
+        self.btnDecrypt.clicked.connect(self.decrypt)
 
     def informationMessage(self,message):
         """send message to messagebox"""
@@ -77,12 +78,47 @@ class GUI(QMainWindow):
         else:
             event.ignore()
 
-    def write_key():
-        print('test')
-    def encryptFile(self):
-        print('test')
-    def decryptFile(self):
-        print('test')
+
+    def encrypt(self):
+        self.w.encrypt()
+    
+    def decrypt(self):
+        self.w.decrypt()
+
+class Worker(QObject):
+
+    def write_key(self):
+        try:
+            check = Path('secret2.key')
+            if check.is_file():
+                pass
+            else:
+                key = Fernet.generate_key()
+                with open("secret2.key", "wb") as key_file:
+                    key_file.write(key)
+        except FileNotFoundError:
+            pass
+
+    def load_key(self):
+        return open("secret2.key", "rb").read()
+
+    def encrypt(self):
+        key = self.load_key()
+        f = Fernet(key)
+        with open('/Users/patrikhauguth/GIT/encryption/csv1.png', "rb") as file:
+            file_data = file.read()
+        encrypted_data = f.encrypt(file_data)
+        with open('/Users/patrikhauguth/GIT/encryption/csv1.png', "wb") as file:
+            file.write(encrypted_data)
+
+    def decrypt(self):
+        key = self.load_key()
+        f = Fernet(key)
+        with open('/Users/patrikhauguth/GIT/encryption/csv1.png', "rb") as file:
+            encrypted_data = file.read()
+        decrypted_data = f.decrypt(encrypted_data)
+        with open('/Users/patrikhauguth/GIT/encryption/csv1.png', "wb") as file:
+            file.write(decrypted_data)
 
 
 app = QApplication(sys.argv)

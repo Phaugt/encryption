@@ -113,5 +113,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 test.py
-.gitignore
 .DS_Store
+csv1.png
+test2.py
+test3.py
+worker.py
+csv1.png
